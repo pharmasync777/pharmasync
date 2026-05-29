@@ -2,6 +2,7 @@
  * Jalankan sekali untuk membuat user admin:
  * node scripts/createAdmin.js
  */
+require('dotenv').config();
 const bcrypt = require('bcrypt');
 const db = require('../config/database');
 require('dotenv').config();
