@@ -1,27 +1,23 @@
-# 🚀 Panduan Deploy PharmaSync
+# 🚀 Panduan Deploy PharmaSync ke Railway
 
-## Arsitektur
+## Arsitektur (semua dalam 1 platform)
 ```
-GitHub Repo
-├── /backend  ──→  Railway  (Node.js + MySQL)
-└── /frontend ──→  Vercel   (React)
+Railway
+├── Service: pharmasync  →  Node.js (Express serve React + API)
+└── Service: MySQL       →  Database
 ```
+Satu URL untuk segalanya. Tidak perlu Vercel atau platform lain.
 
 ---
 
 ## LANGKAH 1 — Upload ke GitHub
 
-### 1.1 Install Git (jika belum)
-Download di: https://git-scm.com/download/win
-
-### 1.2 Buat repository di GitHub
+### 1.1 Buat repository di GitHub
 1. Buka https://github.com → klik **New repository**
-2. Nama repo: `pharmasync`
-3. Pilih **Private** (disarankan)
-4. Klik **Create repository**
+2. Nama: `pharmasync` → pilih **Private** → klik **Create**
 
-### 1.3 Push kode dari terminal
-Buka terminal di folder `C:\xampp\htdocs\pharmasync` lalu jalankan:
+### 1.2 Push dari terminal
+Buka terminal di folder `C:\xampp\htdocs\pharmasync`:
 
 ```bash
 git init
@@ -34,108 +30,89 @@ git push -u origin main
 
 ---
 
-## LANGKAH 2 — Deploy Backend ke Railway
+## LANGKAH 2 — Deploy ke Railway
 
-### 2.1 Buat akun Railway
-Buka https://railway.app → Sign up with GitHub
+### 2.1 Buat akun
+Buka https://railway.app → **Login with GitHub**
 
 ### 2.2 Buat project baru
 1. Klik **New Project**
 2. Pilih **Deploy from GitHub repo**
 3. Pilih repo `pharmasync`
-4. Pilih folder **`backend`** sebagai root directory
+4. **Root Directory**: biarkan kosong (pakai root `/`)
+5. Railway otomatis deteksi `package.json` di root
 
-### 2.3 Tambah MySQL database
-1. Di dalam project yang sama, klik **+ New**
+### 2.3 Tambah MySQL
+1. Di dalam project yang sama, klik **+ Add Service**
 2. Pilih **Database → MySQL**
-3. Railway otomatis membuat database dan variabel koneksi
+3. Tunggu sampai MySQL aktif (status hijau)
 
-### 2.4 Set environment variables backend
-Di Railway → tab **Variables**, tambahkan:
+### 2.4 Set Environment Variables
+Di service `pharmasync` → tab **Variables** → klik **Raw Editor**, paste ini:
 
-| Key | Value |
-|-----|-------|
-| `PORT` | `5000` |
-| `DB_HOST` | `${{MySQL.MYSQL_HOST}}` |
-| `DB_USER` | `${{MySQL.MYSQL_USER}}` |
-| `DB_PASSWORD` | `${{MySQL.MYSQL_PASSWORD}}` |
-| `DB_NAME` | `${{MySQL.MYSQL_DATABASE}}` |
-| `JWT_SECRET` | `isi_string_random_panjang_minimal_32_karakter` |
-| `FRONTEND_URL` | *(isi setelah deploy Vercel)* |
+```
+DB_HOST=${{MySQL.MYSQL_HOST}}
+DB_USER=${{MySQL.MYSQL_USER}}
+DB_PASSWORD=${{MySQL.MYSQL_PASSWORD}}
+DB_NAME=${{MySQL.MYSQL_DATABASE}}
+DB_PORT=${{MySQL.MYSQL_PORT}}
+JWT_SECRET=pharmasync_jwt_secret_ganti_ini_2026
+PORT=5000
+```
 
-> **Tip:** Untuk JWT_SECRET, gunakan string acak panjang, contoh: `ph4rm4sync_s3cr3t_k3y_2026_xyz`
+> ⚠️ Ganti `JWT_SECRET` dengan string acak yang panjang
 
-### 2.5 Import database schema
-1. Di Railway, klik service MySQL → tab **Data**
-2. Klik **Connect** → salin connection string
-3. Atau gunakan **Query** tab, paste isi file `database/pharmasync.sql`
-4. Jalankan juga script admin:
-   - Di Railway terminal backend, jalankan: `node scripts/createAdmin.js`
+### 2.5 Import Database Schema
+1. Di Railway, klik service **MySQL** → tab **Data** → **Query**
+2. Copy-paste seluruh isi file `database/pharmasync.sql` → klik **Run**
 
-### 2.6 Catat URL backend
-Setelah deploy selesai, Railway memberi URL seperti:
-`https://pharmasync-backend-production.up.railway.app`
+### 2.6 Buat User Admin
+1. Di service `pharmasync` → tab **Deploy** → klik **Railway Shell** (atau gunakan terminal)
+2. Jalankan:
+```bash
+node backend/scripts/createAdmin.js
+```
 
----
-
-## LANGKAH 3 — Deploy Frontend ke Vercel
-
-### 3.1 Buat akun Vercel
-Buka https://vercel.com → Sign up with GitHub
-
-### 3.2 Import project
-1. Klik **Add New → Project**
-2. Pilih repo `pharmasync`
-3. **Root Directory**: ganti ke `frontend`
-4. **Framework Preset**: Vite (otomatis terdeteksi)
-
-### 3.3 Set environment variable
-Di bagian **Environment Variables**, tambahkan:
-
-| Key | Value |
-|-----|-------|
-| `VITE_API_URL` | `https://URL-RAILWAY-KAMU.railway.app/api` |
-
-### 3.4 Deploy
-Klik **Deploy** — Vercel akan build dan deploy otomatis.
-
-Setelah selesai, kamu dapat URL seperti:
-`https://pharmasync.vercel.app`
+### 2.7 Generate Domain
+1. Di service `pharmasync` → tab **Settings**
+2. Klik **Generate Domain**
+3. Kamu dapat URL seperti: `https://pharmasync-production.up.railway.app`
 
 ---
 
-## LANGKAH 4 — Hubungkan Frontend & Backend
+## ✅ Checklist
 
-### 4.1 Update FRONTEND_URL di Railway
-Kembali ke Railway → Variables backend:
-- Set `FRONTEND_URL` = `https://pharmasync.vercel.app`
-- Railway akan restart otomatis
-
-### 4.2 Test
-Buka `https://pharmasync.vercel.app` → login dengan `admin` / `admin135`
-
----
-
-## ✅ Checklist Deploy
-
-- [ ] Kode sudah di-push ke GitHub
-- [ ] Railway: backend running (status hijau)
-- [ ] Railway: MySQL database aktif
-- [ ] Railway: semua env variables terisi
+- [ ] Kode sudah di GitHub
+- [ ] Railway: service pharmasync running (hijau)
+- [ ] Railway: MySQL aktif (hijau)
+- [ ] Railway: semua Variables terisi
 - [ ] Railway: schema SQL sudah diimport
-- [ ] Railway: admin user sudah dibuat
-- [ ] Vercel: frontend deployed
-- [ ] Vercel: `VITE_API_URL` sudah diisi URL Railway
-- [ ] Railway: `FRONTEND_URL` sudah diisi URL Vercel
-- [ ] Login berhasil di URL Vercel
+- [ ] Railway: admin user sudah dibuat (`node backend/scripts/createAdmin.js`)
+- [ ] Railway: domain sudah di-generate
+- [ ] Buka URL Railway → login `admin` / `admin135` ✅
 
 ---
 
 ## 🔄 Update kode setelah deploy
 
-Cukup push ke GitHub, Railway dan Vercel akan auto-deploy:
+Cukup push ke GitHub, Railway auto-deploy:
 ```bash
 git add .
 git commit -m "Update: deskripsi perubahan"
 git push
 ```
+
+---
+
+## 🛠️ Development lokal (tetap bisa)
+
+```bash
+# Terminal 1 — Backend
+cd backend
+npm run dev
+
+# Terminal 2 — Frontend
+cd frontend
+npm run dev
+```
+Buka http://localhost:5173

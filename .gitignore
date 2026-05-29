@@ -2,15 +2,12 @@
 node_modules/
 */node_modules/
 
-# Environment files — JANGAN pernah commit file ini
+# Environment — JANGAN commit file ini
 .env
 backend/.env
-frontend/.env.production
-frontend/.env.local
 
-# Build output
+# Build output — Railway akan build sendiri
 frontend/dist/
-frontend/build/
 
 # Logs
 *.log
