@@ -9,19 +9,7 @@ const app = express();
 
 // ── CORS ──────────────────────────────────────────────
 app.use(cors({
-    origin: (origin, callback) => {
-        const allowed = [
-            'http://localhost:5173',
-            'http://localhost:5000',
-            process.env.FRONTEND_URL
-        ].filter(Boolean);
-
-        if (!origin || allowed.includes(origin)) {
-            return callback(null, true);
-        }
-
-        callback(new Error('Not allowed by CORS'));
-    },
+    origin: true,
     credentials: true
 }));
 
