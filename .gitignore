@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment files — JANGAN pernah commit file ini
+.env
+backend/.env
+frontend/.env.production
+frontend/.env.local
+
+# Build output
+frontend/dist/
+frontend/build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json
+.idea/
+
+# Folder tidak terpakai
+pharmasync-project/
+src/
